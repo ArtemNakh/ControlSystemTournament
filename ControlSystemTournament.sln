@@ -1,0 +1,50 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.10.35122.118
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ControlSystemTournament", "ControlSystemTournament\ControlSystemTournament.csproj", "{87016FF5-C080-45FA-B919-EAB4CC7D142D}"
+	ProjectSection(ProjectDependencies) = postProject
+		{B217AA2A-9C38-442B-BD7E-F8AAC62DA8F3} = {B217AA2A-9C38-442B-BD7E-F8AAC62DA8F3}
+		{E60F1A75-C2EF-4627-8B95-7F8B1013203F} = {E60F1A75-C2EF-4627-8B95-7F8B1013203F}
+	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ControlSystemTournament.Core", "ControlSystemTournament.Core\ControlSystemTournament.Core.csproj", "{B217AA2A-9C38-442B-BD7E-F8AAC62DA8F3}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ControlSystemTournament.Storage", "ControlSystemTournament.Storage\ControlSystemTournament.Storage.csproj", "{E60F1A75-C2EF-4627-8B95-7F8B1013203F}"
+	ProjectSection(ProjectDependencies) = postProject
+		{B217AA2A-9C38-442B-BD7E-F8AAC62DA8F3} = {B217AA2A-9C38-442B-BD7E-F8AAC62DA8F3}
+	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ControlSystemTournament.Test", "ControlSystemTournament.Test\ControlSystemTournament.Test.csproj", "{7295AB47-BC70-40CD-87B4-67AA4D4755EB}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{87016FF5-C080-45FA-B919-EAB4CC7D142D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{87016FF5-C080-45FA-B919-EAB4CC7D142D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{87016FF5-C080-45FA-B919-EAB4CC7D142D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{87016FF5-C080-45FA-B919-EAB4CC7D142D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B217AA2A-9C38-442B-BD7E-F8AAC62DA8F3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B217AA2A-9C38-442B-BD7E-F8AAC62DA8F3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B217AA2A-9C38-442B-BD7E-F8AAC62DA8F3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B217AA2A-9C38-442B-BD7E-F8AAC62DA8F3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E60F1A75-C2EF-4627-8B95-7F8B1013203F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E60F1A75-C2EF-4627-8B95-7F8B1013203F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E60F1A75-C2EF-4627-8B95-7F8B1013203F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E60F1A75-C2EF-4627-8B95-7F8B1013203F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7295AB47-BC70-40CD-87B4-67AA4D4755EB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7295AB47-BC70-40CD-87B4-67AA4D4755EB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7295AB47-BC70-40CD-87B4-67AA4D4755EB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7295AB47-BC70-40CD-87B4-67AA4D4755EB}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {0AD3EB99-3764-427E-9882-97102C13F2EB}
+	EndGlobalSection
+EndGlobal
