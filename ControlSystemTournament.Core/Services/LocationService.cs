@@ -22,11 +22,7 @@ namespace ControlSystemTournament.Core.Services
             return await _context.GetById<Location>(id);
         }
 
-        public async Task<IEnumerable<Location>> GetAllLocationsAsync()
-        {
-             return (IEnumerable<Location>)_context.GetAll<Location>(); 
-        }
-
+       
         public async Task<Location> CreateLocationAsync(Location location)
         {
             if (await _context.GetQuery<Location>(l => l.Name == location.Name)!=null)
@@ -51,6 +47,12 @@ namespace ControlSystemTournament.Core.Services
             {
                 await _context.Delete<Location>(id);
             }
+        }
+
+        public Task<IEnumerable<Location>> GetAllLocations()
+        {
+            var locations = (IEnumerable<Location>)_context.GetAll<Location>();
+            return Task.FromResult(locations);
         }
     }
 }

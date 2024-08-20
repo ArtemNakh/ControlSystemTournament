@@ -1,3 +1,6 @@
+using ControlSystemTournament.Core.Interfaces;
+using ControlSystemTournament.Core.Models;
+using ControlSystemTournament.Core.Services;
 using ControlSystemTournament.Storage;
 using Microsoft.EntityFrameworkCore;
 
@@ -11,6 +14,15 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddAutoMapper(typeof(Program));
+
+builder.Services.AddScoped<IRepository, Repository>();
+builder.Services.AddTransient<ILocationService, LocationService>();
+builder.Services.AddTransient<IMatchService, MatchService>();
+builder.Services.AddTransient<IPlayerService, PlayerService>();
+builder.Services.AddTransient<ISponsorService, SponsorService>();
+builder.Services.AddTransient<ITeamService, TeamService>();
+builder.Services.AddTransient<IPlayerRoleService, PlayerRoleService>();
+builder.Services.AddTransient<ITournamentService, TournamentService>();
 
 var app = builder.Build();
 

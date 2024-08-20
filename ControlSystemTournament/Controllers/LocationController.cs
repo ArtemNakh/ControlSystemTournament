@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace ControlSystemTournament.Controllers
 {
-    //зробити повністью контроллер location
+    //зробити повністью контроллер location(доробити put  та інщі перевірки)
     [ApiController]
     [Route("api/[controller]")]
     public class LocationsController : ControllerBase
@@ -20,7 +20,7 @@ namespace ControlSystemTournament.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Location>>> GetLocations()
         {
-            var locations = await _locationService.GetAllLocationsAsync();
+            var locations = await _locationService.GetAllLocations();
             return Ok(locations);
         }
 
@@ -38,10 +38,21 @@ namespace ControlSystemTournament.Controllers
         [HttpPost]
         public async Task<ActionResult<Location>> CreateLocation(Location location)
         {
-            var createdLocation = await _locationService.CreateLocationAsync(location);
-            return CreatedAtAction(nameof(GetLocation), new { id = createdLocation.Id }, createdLocation);
+            try
+            {
+                var createdLocation = await _locationService.CreateLocationAsync(location);
+                return Created();
+            }
+            catch (Exception)
+            {
+                return BadRequest("Location with this name already exists");
+                throw;
+            } 
+          
         }
 
+
+        //todo (переробити щоб був нормальний
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateLocation(int id, Location location)
         {
