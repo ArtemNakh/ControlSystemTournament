@@ -1,13 +1,13 @@
 ﻿using ControlSystemTournament.Core.Interfaces;
+using ControlSystemTournament.Core.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using System.Text.RegularExpressions;
 
 namespace ControlSystemTournament.Controllers
 {
-    
+
     [ApiController]
-    [Route("api/[Match]")]
+    [Route("api/Match")]
     public class MatchController : ControllerBase
     {
         private readonly IMatchService _matchService;
@@ -17,48 +17,73 @@ namespace ControlSystemTournament.Controllers
             _matchService = matchService;
         }
 
-        //[HttpGet]
-        //public async Task<ActionResult<IEnumerable<Match>>> GetMatches()
-        //{
-        //    var matches = await _matchService.);
-        //    return Ok(matches);
-        //}
+        // GET: api/matches/{id}
+        [HttpGet("{id}")]
+        public async Task<ActionResult<Match>> GetMatchById(int id)
+        {
+            var match = await _matchService.GetMatchByIdAsync(id);
+            if (match == null)
+            {
+                return NotFound();
+            }
+            return Ok(match);
+        }
 
-        //[HttpGet("{id}")]
-        //public async Task<ActionResult<Match>> GetMatch(int id)
-        //{
-        //    var match = await _matchService.GetMatchByIdAsync(id);
-        //    if (match == null)
-        //    {
-        //        return NotFound();
-        //    }
-        //    return Ok(match);
-        //}
+        // POST: api/matches
+        [HttpPost]
+        public async Task<IActionResult> CreateMatch([FromBody] Match match)
+        {
+            if (match == null)
+            {
+                return BadRequest();
+            }
 
-        //[HttpPost]
-        //public async Task<ActionResult<Match>> CreateMatch(Match match)
-        //{
-        //    var createdMatch = await _matchService.CreateMatchAsync(match);
-        //    return CreatedAtAction(nameof(GetMatch), new { id = createdMatch.Id }, createdMatch);
-        //}
+            var createdMatch = await _matchService.CreateMatchAsync(match);
+            return Created();
+        }
 
-        //[HttpPut("{id}")]
-        //public async Task<IActionResult> UpdateMatch(int id, Match match)
-        //{
-        //    if (id != match.Id)
-        //    {
-        //        return BadRequest();
-        //    }
+        // PUT: api/matches/{id}
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateMatch(int id, [FromBody] Match match)
+        {
+            if (match == null || match.Id != id)
+            {
+                return BadRequest();
+            }
 
-        //    await _matchService.UpdateMatchAsync(match);
-        //    return NoContent();
-        //}
+            var existingMatch = await _matchService.GetMatchByIdAsync(id);
+            if (existingMatch == null)
+            {
+                return NotFound();
+            }
 
-        //[HttpDelete("{id}")]
-        //public async Task<IActionResult> DeleteMatch(int id)
-        //{
-        //    await _matchService.DeleteMatchAsync(id);
-        //    return NoContent();
-        //}
+            await _matchService.UpdateMatchAsync(match);
+            return NoContent();
+        }
+
+        // DELETE: api/matches/{id}
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteMatch(int id)
+        {
+            var match = await _matchService.GetMatchByIdAsync(id);
+            if (match == null)
+            {
+                return NotFound();
+            }
+
+            await _matchService.DeleteMatchAsync(id);
+            return NoContent();
+        }
+
+        // GET: api/matches/tournament/{tournamentId}
+        [HttpGet("tournament/{tournamentId}")]
+        public async Task<IActionResult> GetMatchesByTournament(int tournamentId)
+        {
+            var tournament = new Tournament { Id = tournamentId }; // Assuming you have a method to get a Tournament object by Id
+            var matches = await _matchService.GetAllMatchesTournamentAsync(tournament);
+
+            return Ok(matches);
+        }
+
     }
 }

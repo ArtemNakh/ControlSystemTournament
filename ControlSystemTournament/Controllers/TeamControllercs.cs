@@ -5,7 +5,7 @@ using ControlSystemTournament.Core.Models;
 
 namespace ControlSystemTournament.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/Team")]
     [ApiController]
     public class TeamController : ControllerBase
     {

@@ -12,13 +12,7 @@ namespace ControlSystemTournament.Core.Services
             _context = context;
         }
 
-        //public async Task<IEnumerable<Match>> GetAllMatchesAsync()
-        //{
-        //    return await _context.Matches.Include(m => m.TeamA)
-        //                                 .Include(m => m.TeamB)
-        //                                 .Include(m => m.Tournament)
-        //                                 .ToListAsync();
-        //}
+     
 
         public async Task<Match> GetMatchByIdAsync(int id)
         {
@@ -40,32 +34,18 @@ namespace ControlSystemTournament.Core.Services
 
         public async Task DeleteMatchAsync(int id)
         {
-            var match = await _context.GetById<Match>(id); 
+            var match = await _context.GetById<Match>(id);
             if (match != null)
                 await _context.Delete<Match>(id);
-            
+
         }
 
-        //public async Task<IEnumerable<Team>> GetTeamsMatcheAsync(Match match)
-        //{
-        //    // Перевірка, що об'єкт матчу не є null
-        //    if (match == null)
-        //    {
-        //        throw new ArgumentNullException(nameof(match), "Match cannot be null");
-        //    }
+        public Task<IEnumerable<Match>> GetAllMatchesTournamentAsync(Tournament tournament)
+        {
+            var matches = _context.GetQuery<Match>(m => m.Tournament.Id == tournament.Id);
+            return matches;
+        }
 
-        //    // Створення колекції для зберігання команд
-        //    var teams = new List<Team>
-        //    {
-        //        // Додавання команд у колекцію, якщо вони існують
-
-        //        match.TeamA,
-        //        match.TeamB
-        //    };
-            
-
-        //    // Повернення колекції команд
-        //    return  teams;
-        //}
+       
     }
 }
