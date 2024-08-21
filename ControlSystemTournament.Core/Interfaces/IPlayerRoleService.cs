@@ -11,7 +11,7 @@ namespace ControlSystemTournament.Core.Interfaces
     {
         Task<PlayerRole> GetPLayerRoleByIdAsync(int id);
         Task<IEnumerable<PlayerRole>> GetAllPLayerRolesAsync();
-        Task<IEnumerable<PlayerRole>> GetPLayerRoleByNameAsync(string nameRole);
+        Task<PlayerRole> GetPLayerRoleByNameAsync(string nameRole);
         Task<PlayerRole> CreatePlayerRoleAsync(string nameRole);
         Task DeletePlayerRoleAsync(int id);
     }

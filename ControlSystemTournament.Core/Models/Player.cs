@@ -15,9 +15,8 @@ namespace ControlSystemTournament.Core.Models
         public string LastName { get; set; }
         public int Age { get; set; }
         public string Country { get; set; }
-
-
         public virtual PlayerRole Role { get; set; }
+        public virtual Team Team { get; set; }
     }
 
 

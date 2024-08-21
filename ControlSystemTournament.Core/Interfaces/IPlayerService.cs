@@ -9,9 +9,8 @@ namespace ControlSystemTournament.Core.Interfaces
 {
     public interface IPlayerService
     {
-        //Task<IEnumerable<Player>> GetAllPlayersAsync();
-        Task<IEnumerable<Player>> GetPlayersTournamentAsync(Tournament tournament);
-        Task<IEnumerable<Player>> GetPlayersTeamAsync(Team team);
+        Task<IEnumerable<Player>> GetPlayersTournamentAsync(int tournamentId);
+        Task<IEnumerable<Player>> GetPlayersTeamAsync(int teamId);
         Task<Player> GetPlayerByIdAsync(int id);
         Task<Player> CreatePlayerAsync(Player player);
         Task UpdatePlayerAsync(Player player);

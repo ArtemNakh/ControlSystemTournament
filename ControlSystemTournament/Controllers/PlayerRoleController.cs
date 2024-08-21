@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using System.Collections.Generic;
+using System.Data;
 
 namespace ControlSystemTournament.Controllers
 {
@@ -22,16 +23,24 @@ namespace ControlSystemTournament.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<PlayerRole>>> GetAllRoles([FromQuery] string? nameRole)
         {
-            IEnumerable<PlayerRole> roles = null;
+
             if (nameRole != null)
-                roles = await _PlayerRoleService.GetPLayerRoleByNameAsync(nameRole);
+            {
+                PlayerRole role = await _PlayerRoleService.GetPLayerRoleByNameAsync(nameRole);
+
+                if (role == null)
+                    return NotFound();
+                return Ok(role);
+            }
             else
-                roles = await _PlayerRoleService.GetAllPLayerRolesAsync();
+            {
+                IEnumerable <PlayerRole> roles = await _PlayerRoleService.GetAllPLayerRolesAsync();
 
-            if (roles == null|| roles.IsNullOrEmpty())
-                return NotFound();
+                if (roles == null)
+                    return NotFound();
+                return Ok(roles);
+            }
 
-            return Ok(roles);
         }
 
 
@@ -44,7 +53,7 @@ namespace ControlSystemTournament.Controllers
 
             return Ok(location);
         }
-        
+
 
         [HttpPost]
         public async Task<ActionResult<PlayerRole>> CreateRole([FromBody] string nameRole)

@@ -12,6 +12,7 @@ namespace ControlSystemTournament.Core.Services
     {
         private readonly IRepository _context;
 
+       
         public PlayerRoleService(IRepository context)
         {
             _context = context;
@@ -53,9 +54,9 @@ namespace ControlSystemTournament.Core.Services
             return  _context.GetById<PlayerRole>(id);
         }
 
-        public async Task<IEnumerable<PlayerRole>> GetPLayerRoleByNameAsync(string nameRole)
+        public async Task<PlayerRole> GetPLayerRoleByNameAsync(string nameRole)
         {
-            return await _context.GetQuery<PlayerRole>(n=>n.Name == nameRole);
+            return( await _context.GetQuery<PlayerRole>(n=>n.Name == nameRole)).First();
         }
     
 

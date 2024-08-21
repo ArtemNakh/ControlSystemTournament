@@ -12,10 +12,24 @@ namespace ControlSystemTournament.Core.Services
             _context = context;
         }
 
-        //public async Task<IEnumerable<Player>> GetAllPlayersAsync()
-        //{
-        //    return await _context.Players.ToListAsync();
-        //}
+        public async Task<IEnumerable<Player>> GetPlayersTournamentAsync(int tournamentId)
+        {
+            if (tournamentId == null)
+            {
+                throw new ArgumentNullException(nameof(tournamentId), "Tournament cannot be null");
+            }
+            return await _context.GetQuery<Player>(p => p.Team.Tournament.Id == tournamentId);
+        }
+
+        public async Task<IEnumerable<Player>> GetPlayersTeamAsync(int teamId)
+        {
+            if (teamId == null)
+            {
+                throw new ArgumentNullException(nameof(teamId), "Team cannot be null");
+            }
+
+            return await _context.GetQuery<Player>(p => p.Team.Id == teamId);
+        }
 
         public async Task<Player> GetPlayerByIdAsync(int id)
         {
@@ -42,24 +56,5 @@ namespace ControlSystemTournament.Core.Services
             }
         }
 
-        public Task<IEnumerable<Player>> GetPlayersTournamentAsync(Tournament tournament)
-        {
-            if (tournament == null)
-            {
-            //    throw new ArgumentNullException(nameof(tournament), "Tournament cannot be null");
-            }
-            throw new ArgumentNullException(nameof(tournament), "Tournament cannot be null");
-         //   return _context.GetQuery<Player>(p => p.Team.Tournament.Id == tournament.Id);
-        }
-
-        public Task<IEnumerable<Player>> GetPlayersTeamAsync(Team team)
-        {
-            if (team == null)
-            {
-                throw new ArgumentNullException(nameof(team), "Team cannot be null");
-            }
-
-            return  _context.GetQuery<Player>(p => p.Id == team.Id);
-        }
     }
 }

@@ -8,7 +8,23 @@ namespace ControlSystemTournament.Storage
         public TournamentContext(DbContextOptions<TournamentContext> options) : base(options)
         { }
 
-      
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            // Налаштування зв'язку один-до-багатьох між Player і Team
+            modelBuilder.Entity<Player>()
+                .HasOne(p => p.Team)
+                .WithMany(t => t.Players)
+                .HasForeignKey("TeamId") // Ім'я властивості зовнішнього ключа в таблиці Players
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Налаштування зв'язку один-до-одного між Team і Coach (Player)
+            modelBuilder.Entity<Team>()
+                .HasOne(t => t.Coach)
+                .WithOne()
+                .HasForeignKey<Team>("CoachId"); // Ім'я властивості зовнішнього ключа в таблиці Teams
+        }
 
 
         public DbSet<Tournament> Tournaments { get; set; }

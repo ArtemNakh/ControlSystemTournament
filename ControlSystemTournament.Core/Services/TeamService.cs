@@ -13,11 +13,6 @@ namespace ControlSystemTournament.Core.Services
             _context = context;
         }
 
-        //public async Task<IEnumerable<Team>> GetAllTeamsAsync()
-        //{
-        //    return await _context.Teams.Include(t => t.Players).ToListAsync();
-        //}
-
         public async Task<Team> GetTeamByIdAsync(int id)
         {
             return await _context.GetById<Team>(id);

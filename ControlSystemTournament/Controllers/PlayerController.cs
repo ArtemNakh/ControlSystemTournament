@@ -1,72 +1,114 @@
-﻿//using ControlSystemTournament.Core.Interfaces;
-//using ControlSystemTournament.Core.Models;
-//using Microsoft.AspNetCore.Http;
-//using Microsoft.AspNetCore.Mvc;
+﻿using ControlSystemTournament.Core.Interfaces;
+using ControlSystemTournament.Core.Models;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
+using System.Collections.Generic;
 
-//namespace ControlSystemTournament.Controllers
-//{
-   
-//    [ApiController]
-//    [Route("api/[Player]")]
-//    public class PlayerController : ControllerBase
-//    {
-//        private readonly IPlayerService _playerService;
+namespace ControlSystemTournament.Controllers
+{
 
-//        public PlayerController(IPlayerService playerService)
-//        {
-//            _playerService = playerService;
-//        }
+    [ApiController]
+    [Route("api/Player")]
+    public class PlayerController : ControllerBase
+    {
+        private readonly IPlayerService _playerService;
+        private readonly ITeamService _teamService;
+        private readonly IPlayerRoleService _playerRoleService;
 
-//        //[HttpGet]
-//        //public async Task<ActionResult<IEnumerable<Player>>> GetPlayers()
-//        //{
-//        //    var players = await _playerService. .GetAllPlayersAsync();
-//        //    return Ok(players);
-//        //}
 
-//        [HttpGet("{id}")]
-//        public async Task<ActionResult<Player>> GetPlayer(int id)
-//        {
-//            var player = await _playerService.GetPlayerByIdAsync(id);
-//            if (player == null)
-//            {
-//                return NotFound();
-//            }
-//            return Ok(player);
-//        }
+        public PlayerController(IPlayerService playerService, IPlayerRoleService playerRoleService)
+        {
+            _playerService = playerService;
+            _playerRoleService = playerRoleService;
+        }
 
-//        [HttpPost]
-//        public async Task<ActionResult<Player>> CreatePlayer(string nickname,string firstName,string lastName,
-//            int age,string country)
-//        {
-//            Player newPlayer=new Player()
-//            {
-//                Nickname=name,
-//                FirstName="test",
-//                LastName="lastname",
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<Player>>> GetPlayers([FromQuery] int? teamId,
+                                                                        [FromQuery] int? tournamentId)
+        {
+            IEnumerable<Player> players;
+            if (teamId != null)
+                players = await _playerService.GetPlayersTeamAsync(teamId.Value);
+            else if (tournamentId != null)
+                players = await _playerService.GetPlayersTournamentAsync(tournamentId.Value);
+            else
+                return NoContent();
 
-//            }
-//            var createdPlayer = await _playerService.CreatePlayerAsync(player);
-//            return CreatedAtAction(nameof(GetPlayer), new { id = createdPlayer.Id }, createdPlayer);
-//        }
+            if (players == null || players.IsNullOrEmpty())
+                return NotFound();
 
-//        [HttpPut("{id}")]
-//        public async Task<IActionResult> UpdatePlayer(int id, Player player)
-//        {
-//            if (id != player.Id)
-//            {
-//                return BadRequest();
-//            }
+            return Ok(players);
+        }
 
-//            await _playerService.UpdatePlayerAsync(player);
-//            return NoContent();
-//        }
+        [HttpGet("{id}")]
+        public async Task<ActionResult<Player>> GetPlayer(int Id)
+        {
+            if (Id == null)
+                return NotFound();
+            var player = await _playerService.GetPlayerByIdAsync(Id);
+            if (player == null)
+                return NotFound();
 
-//        [HttpDelete("{id}")]
-//        public async Task<IActionResult> DeletePlayer(int id)
-//        {
-//            await _playerService.DeletePlayerAsync(id);
-//            return NoContent();
-//        }
-//    }
-//}
+            return Ok(player);
+        }
+
+
+        //todo DTO
+        [HttpPost]
+        public async Task<ActionResult<Player>> CreatePlayer([FromBody]Player player)
+        {
+           if (player ==null)
+                return BadRequest();
+
+            try
+            {
+                _playerService.CreatePlayerAsync(player);
+                return Ok(player);
+            }
+            catch (Exception)
+            {
+                return BadRequest();
+                throw;
+            }
+           
+        }
+
+        [HttpPut]
+        public async Task<ActionResult<Player>> UpdatePlayer(Player player)
+        {
+            try
+            {
+                _playerService.UpdatePlayerAsync(player);
+                return Ok(player);
+            }
+            catch (Exception)
+            {
+                return NotFound();
+                throw;
+            }
+
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<ActionResult> DeletePlayer(int id)
+        {
+            try
+            {
+                var player = _playerService.GetPlayerByIdAsync(id);
+                if (player == null)
+                    return BadRequest();
+
+                _playerService.DeletePlayerAsync(id);
+                return Ok();              
+                
+            }
+            catch (Exception)
+            {
+                return NotFound();
+                throw;
+            }
+        }
+       
+    }
+}
