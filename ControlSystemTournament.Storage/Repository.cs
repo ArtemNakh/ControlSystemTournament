@@ -36,12 +36,14 @@ namespace ControlSystemTournament.Storage
             return entity;
         }
 
+
+
         public async Task<T> GetById<T>(int id) where T : class
         {
-            return await _context.Set<T>().FindAsync(id).AsTask();
+            return await _context.Set<T>().FindAsync(id);
         }
 
-        public  IQueryable GetAll<T>() where T : class
+        public IQueryable GetAll<T>() where T : class
         {
             return _context.Set<T>();
         }

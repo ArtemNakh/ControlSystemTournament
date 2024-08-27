@@ -1,6 +1,8 @@
-﻿using ControlSystemTournament.Core.Interfaces;
+﻿using AutoMapper;
+using ControlSystemTournament.Core.Interfaces;
 using ControlSystemTournament.Core.Models;
 using ControlSystemTournament.Core.Services;
+using ControlSystemTournament.DTOs;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
@@ -14,54 +16,61 @@ namespace ControlSystemTournament.Controllers
     public class PlayerRoleController : ControllerBase
     {
         private readonly IPlayerRoleService _PlayerRoleService;
-
-        public PlayerRoleController(IPlayerRoleService playerRoleService)
+        private readonly IMapper _mapper;
+        public PlayerRoleController(IPlayerRoleService playerRoleService, IMapper mapper)
         {
             _PlayerRoleService = playerRoleService;
+            _mapper = mapper;
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<PlayerRole>>> GetAllRoles([FromQuery] string? nameRole)
+        public async Task<ActionResult<IEnumerable<PlayerRoleDTO>>> GetRoles([FromQuery] string? nameRole = null)
         {
+            IEnumerable<PlayerRole> roles;
 
-            if (nameRole != null)
+            if (!string.IsNullOrEmpty(nameRole))
             {
-                PlayerRole role = await _PlayerRoleService.GetPLayerRoleByNameAsync(nameRole);
-
-                if (role == null)
+                var role = await _PlayerRoleService.GetPLayerRoleByNameAsync(nameRole);
+                if (role == null || string.IsNullOrEmpty(role.Name))
                     return NotFound();
-                return Ok(role);
+
+                roles = new List<PlayerRole> { role };
             }
             else
             {
-                IEnumerable <PlayerRole> roles = await _PlayerRoleService.GetAllPLayerRolesAsync();
-
-                if (roles == null)
+                roles = await _PlayerRoleService.GetAllPLayerRolesAsync();
+                if (roles == null || !roles.Any())
                     return NotFound();
-                return Ok(roles);
             }
 
+
+            var rolesDTO = _mapper.Map<IEnumerable<PlayerRoleDTO>>(roles);
+            return Ok(rolesDTO);
         }
 
 
+
+
         [HttpGet("{id}")]
-        public async Task<ActionResult<PlayerRole>> GetRoleById(int id)
+        public async Task<ActionResult<PlayerRoleDTO>> GetRoleById(int id)
         {
-            var location = await _PlayerRoleService.GetPLayerRoleByIdAsync(id);
-            if (location == null)
+            var role = await _PlayerRoleService.GetPLayerRoleByIdAsync(id);
+            if (role == null)
                 return NotFound();
 
-            return Ok(location);
+            var playerRoleDTO = _mapper.Map<PlayerRoleDTO>(role);
+            return Ok(playerRoleDTO);
         }
 
 
         [HttpPost]
-        public async Task<ActionResult<PlayerRole>> CreateRole([FromBody] string nameRole)
+        public async Task<ActionResult<PlayerRoleDTO>> CreateRole([FromBody] string nameRole)
         {
             try
             {
                 var createdRole = await _PlayerRoleService.CreatePlayerRoleAsync(nameRole);
-                return Created();
+                var playerDTO = _mapper.Map<PlayerRoleDTO>(createdRole);
+                return Created("Created player", playerDTO);
             }
             catch (Exception)
             {
@@ -72,7 +81,7 @@ namespace ControlSystemTournament.Controllers
         }
 
         [HttpDelete]
-        public async Task<IActionResult> DeleteRole(int id)
+        public async Task<ActionResult> DeleteRole(int id)
         {
 
             await _PlayerRoleService.DeletePlayerRoleAsync(id);

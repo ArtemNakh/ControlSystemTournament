@@ -16,14 +16,15 @@ namespace ControlSystemTournament.Storage
             modelBuilder.Entity<Player>()
                 .HasOne(p => p.Team)
                 .WithMany(t => t.Players)
-                .HasForeignKey("TeamId") // Ім'я властивості зовнішнього ключа в таблиці Players
+                .HasForeignKey("TeamId") 
                 .OnDelete(DeleteBehavior.Restrict);
 
             // Налаштування зв'язку один-до-одного між Team і Coach (Player)
             modelBuilder.Entity<Team>()
                 .HasOne(t => t.Coach)
                 .WithOne()
-                .HasForeignKey<Team>("CoachId"); // Ім'я властивості зовнішнього ключа в таблиці Teams
+                .HasForeignKey<Team>("CoachId"); 
+
         }
 
 

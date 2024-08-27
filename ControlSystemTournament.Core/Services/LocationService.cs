@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.IdentityModel.Tokens;
 
 namespace ControlSystemTournament.Core.Services
 {
@@ -25,7 +26,8 @@ namespace ControlSystemTournament.Core.Services
        
         public async Task<Location> CreateLocationAsync(Location location)
         {
-            if (await _context.GetQuery<Location>(l => l.Name == location.Name)!=null)
+            var IsHas = await _context.GetQuery<Location>(l => l.Name == location.Name);
+            if (!IsHas.IsNullOrEmpty())
             {
                 throw new Exception("Location with this name already exists.");
             }

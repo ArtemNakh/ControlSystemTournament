@@ -1,5 +1,6 @@
 ﻿using ControlSystemTournament.Core.Interfaces;
 using ControlSystemTournament.Core.Models;
+using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,7 +13,7 @@ namespace ControlSystemTournament.Core.Services
     {
         private readonly IRepository _context;
 
-       
+
         public PlayerRoleService(IRepository context)
         {
             _context = context;
@@ -20,10 +21,10 @@ namespace ControlSystemTournament.Core.Services
 
         public async Task<PlayerRole> CreatePlayerRoleAsync(string nameRole)
         {
-            if ((await _context.GetQuery<PlayerRole>(l => l.Name == nameRole)).FirstOrDefault() != null)
-            {
+            var IsHas = await _context.GetQuery<PlayerRole>(l => l.Name == nameRole);
+            if (!IsHas.IsNullOrEmpty())
                 throw new Exception("Role with this name already exists.");
-            }
+
 
             PlayerRole newPlayerRole = new PlayerRole()
             {
@@ -31,7 +32,7 @@ namespace ControlSystemTournament.Core.Services
             };
 
             await _context.Add(newPlayerRole);
-           
+
             return newPlayerRole;
         }
 
@@ -51,14 +52,22 @@ namespace ControlSystemTournament.Core.Services
 
         public Task<PlayerRole> GetPLayerRoleByIdAsync(int id)
         {
-            return  _context.GetById<PlayerRole>(id);
+            return _context.GetById<PlayerRole>(id);
         }
 
         public async Task<PlayerRole> GetPLayerRoleByNameAsync(string nameRole)
         {
-            return( await _context.GetQuery<PlayerRole>(n=>n.Name == nameRole)).First();
+            try
+            {
+                return (await _context.GetQuery<PlayerRole>(n => n.Name == nameRole)).First();
+            }
+            catch (Exception)
+            {
+                throw new Exception("Role with this name does not exist.");
+                throw;
+            }
         }
-    
+
 
     }
 }

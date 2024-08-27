@@ -1,5 +1,7 @@
-﻿using ControlSystemTournament.Core.Interfaces;
+﻿using AutoMapper;
+using ControlSystemTournament.Core.Interfaces;
 using ControlSystemTournament.Core.Models;
+using ControlSystemTournament.DTOs;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
@@ -15,12 +17,14 @@ namespace ControlSystemTournament.Controllers
         private readonly IPlayerService _playerService;
         private readonly ITeamService _teamService;
         private readonly IPlayerRoleService _playerRoleService;
+        private readonly IMapper _mapper;
 
 
-        public PlayerController(IPlayerService playerService, IPlayerRoleService playerRoleService)
+        public PlayerController(IPlayerService playerService, IPlayerRoleService playerRoleService, IMapper mapper)
         {
             _playerService = playerService;
             _playerRoleService = playerRoleService;
+            _mapper = mapper;
         }
 
         [HttpGet]
@@ -42,7 +46,7 @@ namespace ControlSystemTournament.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<Player>> GetPlayer(int Id)
+        public async Task<ActionResult<PlayerDTO>> GetPlayer(int Id)
         {
             if (Id == null)
                 return NotFound();
@@ -50,21 +54,25 @@ namespace ControlSystemTournament.Controllers
             if (player == null)
                 return NotFound();
 
-            return Ok(player);
+            var playerDTO = _mapper.Map<PlayerDTO>(player);
+            return Ok(playerDTO);
         }
 
 
         //todo DTO
         [HttpPost]
-        public async Task<ActionResult<Player>> CreatePlayer([FromBody]Player player)
+        public async Task<ActionResult<PlayerDTO>> CreatePlayer([FromBody] PlayerDTO playerDTO)
         {
-           if (player ==null)
+           if (playerDTO == null)
                 return BadRequest();
 
             try
             {
-                _playerService.CreatePlayerAsync(player);
-                return Ok(player);
+                var player = _mapper.Map<Player>(playerDTO);
+                await _playerService.CreatePlayerAsync(player);
+
+                var createdPlayerDTO = _mapper.Map<PlayerDTO>(player);
+                return Created("created player",createdPlayerDTO);
             }
             catch (Exception)
             {
@@ -75,11 +83,13 @@ namespace ControlSystemTournament.Controllers
         }
 
         [HttpPut]
-        public async Task<ActionResult<Player>> UpdatePlayer(Player player)
+        public async Task<ActionResult<Player>> UpdatePlayer(PlayerDTO playerDTO)
         {
             try
             {
-                _playerService.UpdatePlayerAsync(player);
+                var player = _mapper.Map<Player>(playerDTO);
+                await _playerService.UpdatePlayerAsync(player);
+
                 return Ok(player);
             }
             catch (Exception)

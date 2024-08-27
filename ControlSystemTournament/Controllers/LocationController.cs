@@ -1,5 +1,7 @@
-﻿using ControlSystemTournament.Core.Interfaces;
+﻿using AutoMapper;
+using ControlSystemTournament.Core.Interfaces;
 using ControlSystemTournament.Core.Models;
+using ControlSystemTournament.DTOs;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,37 +13,44 @@ namespace ControlSystemTournament.Controllers
     public class LocationsController : ControllerBase
     {
         private readonly ILocationService _locationService;
-
-        public LocationsController(ILocationService locationService)
+        private readonly IMapper _mapper;
+        public LocationsController(ILocationService locationService, IMapper mapper)
         {
             _locationService = locationService;
+            _mapper = mapper;
         }
 
+        //todo
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Location>>> GetLocations()
+        public async Task<ActionResult<IEnumerable<LocationDTO>>> GetLocations()
         {
             var locations = await _locationService.GetAllLocations();
-            return Ok(locations);
+            
+            var locationDTO = _mapper.Map<IEnumerable<LocationDTO>>(locations);
+            return Ok(locationDTO);
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<Location>> GetLocation(int id)
+        public async Task<ActionResult<LocationDTO>> GetLocation(int id)
         {
             var location = await _locationService.GetLocationByIdAsync(id);
             if (location == null)
             {
                 return NotFound();
             }
-            return Ok(location);
+
+            var locationDTO = _mapper.Map<LocationDTO>(location);
+            return Ok(locationDTO);
         }
 
         [HttpPost]
-        public async Task<ActionResult<Location>> CreateLocation(Location location)
+        public async Task<ActionResult<LocationDTO>> CreateLocation(LocationDTO locationDTO)
         {
             try
             {
-                var createdLocation = await _locationService.CreateLocationAsync(location);
-                return Created();
+                var location=_mapper.Map<Location>(locationDTO);
+                await _locationService.CreateLocationAsync(location);
+                return Created("Created location", locationDTO);
             }
             catch (Exception)
             {
@@ -52,21 +61,22 @@ namespace ControlSystemTournament.Controllers
         }
 
 
-        //todo (переробити щоб був нормальний
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateLocation(int id, Location location)
+        public async Task<ActionResult<LocationDTO>> UpdateLocation(int id, LocationDTO locationDTO)
         {
-            if (id != location.Id)
+            if (locationDTO ==null)
             {
                 return BadRequest();
             }
 
+            var location = _mapper.Map<Location>(locationDTO);
+            location.Id = id;
             await _locationService.UpdateLocationAsync(location);
-            return NoContent();
+            return Ok(locationDTO);
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteLocation(int id)
+        public async Task<ActionResult> DeleteLocation(int id)
         {
             await _locationService.DeleteLocationAsync(id);
             return NoContent();

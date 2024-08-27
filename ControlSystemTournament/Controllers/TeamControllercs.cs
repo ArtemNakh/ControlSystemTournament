@@ -2,6 +2,9 @@
 using Microsoft.AspNetCore.Mvc;
 using ControlSystemTournament.Core.Interfaces;
 using ControlSystemTournament.Core.Models;
+using AutoMapper;
+using ControlSystemTournament.DTOs;
+using ControlSystemTournament.Core.Services;
 
 namespace ControlSystemTournament.Controllers
 {
@@ -10,10 +13,13 @@ namespace ControlSystemTournament.Controllers
     public class TeamController : ControllerBase
     {
         private readonly ITeamService _teamService;
-
-        public TeamController(ITeamService teamService)
+        private readonly IMapper _mapper;
+        private readonly ITournamentService _tournamentService;
+        public TeamController(ITeamService teamService, IMapper mapper, ITournamentService tournamentService)
         {
             _teamService = teamService;
+            _mapper = mapper;
+            _tournamentService = tournamentService;
         }
 
         //[HttpGet]
@@ -24,54 +30,55 @@ namespace ControlSystemTournament.Controllers
         //}
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<Team>> GetTeam(int id)
+        public async Task<ActionResult<TeamDTO>> GetTeam(int id)
         {
             var team = await _teamService.GetTeamByIdAsync(id);
             if (team == null)
             {
                 return NotFound();
             }
-            return Ok(team);
+            var teamDTO = _mapper.Map<TeamDTO>(team);
+            teamDTO.TournamentId = id;
+            return Ok(teamDTO);
         }
 
         [HttpPost]
-        public async Task<ActionResult<Team>> CreateTeam(Team team)
+        public async Task<ActionResult<TeamDTO>> CreateTeam(TeamDTO teamDTO)
         {
-            var createdTeam = await _teamService.CreateTeamAsync(team);
-            return Created();
-        }
-
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateTeam(int id, [FromBody] Team team)
-        {
-            if (team == null || team.Id != id)
-            {
-                return BadRequest();
-            }
-
-            var existingTeam = await _teamService.GetTeamByIdAsync(id);
-            if (existingTeam == null)
-            {
+            var team = _mapper.Map<Team>(teamDTO);
+            team.Tournament = _tournamentService.GetTournamentByIdAsync(teamDTO.TournamentId).Result;
+            if (team.Tournament ==null)
                 return NotFound();
-            }
+            await _teamService.CreateTeamAsync(team);
 
-            await _teamService.UpdateTeamAsync(team);
-            return NoContent();
+            _mapper.Map<TeamDTO>(team);
+            return Created("Created team",teamDTO);
         }
+
         //[HttpPut("{id}")]
-        //public async Task<IActionResult> UpdateTeam(int id, Team team)
+        //public async Task<ActionResult> UpdateTeam(int id, [FromBody] TeamDTO teamDTO)
         //{
-        //    if (id != team.Id)
+        //    if (teamDTO == null)
         //    {
         //        return BadRequest();
         //    }
 
+        //    var existingTeam = await _teamService.GetTeamByIdAsync(id);
+        //    if (existingTeam == null)
+        //    {
+        //        return NotFound();
+        //    }
+
+        //    var team = _mapper.Map<Team>(teamDTO);
+
         //    await _teamService.UpdateTeamAsync(team);
-        //    return NoContent();
+
+        //    return Ok();
         //}
+      
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteTeam(int id)
+        public async Task<ActionResult> DeleteTeam(int id)
         {
             var team = await _teamService.GetTeamByIdAsync(id);
             if (team == null)
@@ -83,13 +90,13 @@ namespace ControlSystemTournament.Controllers
             return NoContent();
         }
 
-        [HttpGet("{tournamentId}")]
-        public async Task<IActionResult> GetTeamsByTournament(int tournamentId)
+        [HttpGet("tournament/{tournamentId}")]
+        public async Task<ActionResult<TeamDTO>> GetTeamsByTournament(int tournamentId)
         {
-            var tournament = new Tournament { Id = tournamentId }; // Assuming you have a method to get a Tournament object by Id
+           var tournament = await _tournamentService.GetTournamentByIdAsync(tournamentId);
             var teams = await _teamService.GetTeamsTournamentAsync(tournament);
-
-            return Ok(teams);
+            var teamsDTO= _mapper.Map<IEnumerable<TeamDTO>>(teams);
+            return Ok(teamsDTO);
         }
     }
 }

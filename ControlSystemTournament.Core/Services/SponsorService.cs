@@ -1,5 +1,6 @@
 ﻿using ControlSystemTournament.Core.Interfaces;
 using ControlSystemTournament.Core.Models;
+using System.Collections.Generic;
 
 
 namespace ControlSystemTournament.Core.Services
@@ -7,13 +8,15 @@ namespace ControlSystemTournament.Core.Services
     public class SponsorService : ISponsorService
     {
         private readonly IRepository _context;
+        private readonly ITournamentService _tournamentService;
 
-        public SponsorService(IRepository context)
+        public SponsorService(IRepository context, ITournamentService tournamentService)
         {
             _context = context;
+            _tournamentService = tournamentService;
         }
 
-      
+
         public Task<IEnumerable<Sponsor>> GetAllSponsorsTournamentAsync(Tournament tournament)
         {
             if (tournament == null)
@@ -26,7 +29,9 @@ namespace ControlSystemTournament.Core.Services
 
         public async Task<Sponsor> GetSponsorByIdAsync(int id)
         {
-            return await _context.GetById<Sponsor>(id);
+            var sponsor = await _context.GetById<Sponsor>(id);
+            var tournament = sponsor?.Tournament;  
+            return sponsor;
         }
 
 
@@ -50,6 +55,6 @@ namespace ControlSystemTournament.Core.Services
             }
         }
 
-       
+        
     }
 }

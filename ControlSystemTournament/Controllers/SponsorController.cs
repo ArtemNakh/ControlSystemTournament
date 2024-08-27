@@ -1,5 +1,7 @@
-﻿using ControlSystemTournament.Core.Interfaces;
+﻿using AutoMapper;
+using ControlSystemTournament.Core.Interfaces;
 using ControlSystemTournament.Core.Models;
+using ControlSystemTournament.DTOs;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -7,62 +9,54 @@ namespace ControlSystemTournament.Controllers
 {
     [Route("api/Sponsor")]
     [ApiController]
+
     public class SponsorController : ControllerBase
     {
         private readonly ISponsorService _sponsorService;
-
-        public SponsorController(ISponsorService sponsorService)
+        private readonly ITournamentService _tournamentService;
+        private readonly IMapper _mapper;
+        public SponsorController(ISponsorService sponsorService, IMapper mapper, ITournamentService tournamentService)
         {
             _sponsorService = sponsorService;
+            _mapper = mapper;
+            _tournamentService = tournamentService;
         }
 
-        // GET: api/sponsors/{id}
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetSponsorById(int id)
+        public async Task<ActionResult<SponsorDTO>> GetSponsorById(int id)
         {
             var sponsor = await _sponsorService.GetSponsorByIdAsync(id);
             if (sponsor == null)
             {
                 return NotFound();
             }
-            return Ok(sponsor);
+
+
+            var sponsorDTO = _mapper.Map<SponsorDTO>(sponsor);
+            return Ok(sponsorDTO);
         }
 
-        // POST: api/sponsors
         [HttpPost]
-        public async Task<IActionResult> CreateSponsor([FromBody] Sponsor sponsor)
+        public async Task<ActionResult<SponsorDTO>> CreateSponsor([FromBody] SponsorDTO sponsorDTO)
         {
-            if (sponsor == null)
+            if (sponsorDTO == null)
             {
                 return BadRequest();
             }
+            var sponsor = _mapper.Map<Sponsor>(sponsorDTO);
+            sponsor.Tournament = _tournamentService.GetTournamentByIdAsync(sponsor.Tournament.Id).Result;
+            await _sponsorService.CreateSponsorAsync(sponsor);
 
-            var createdSponsor = await _sponsorService.CreateSponsorAsync(sponsor);
-            return Created();
+            Tournament tournament = _tournamentService.GetTournamentByIdAsync(sponsor.Tournament.Id).Result;
+            tournament.PrizePool += sponsorDTO.Contribution;
+            await _tournamentService.UpdateTournamentAsync(tournament);
+            return Created("Create Sponsor", sponsorDTO);
         }
 
-        // PUT: api/sponsors/{id}
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateSponsor(int id, [FromBody] Sponsor sponsor)
-        {
-            if (sponsor == null || sponsor.Id != id)
-            {
-                return BadRequest();
-            }
 
-            var existingSponsor = await _sponsorService.GetSponsorByIdAsync(id);
-            if (existingSponsor == null)
-            {
-                return NotFound();
-            }
 
-            await _sponsorService.UpdateSponsorAsync(sponsor);
-            return NoContent();
-        }
-
-        // DELETE: api/sponsors/{id}
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteSponsor(int id)
+        public async Task<ActionResult> DeleteSponsor(int id)
         {
             var sponsor = await _sponsorService.GetSponsorByIdAsync(id);
             if (sponsor == null)
@@ -70,61 +64,22 @@ namespace ControlSystemTournament.Controllers
                 return NotFound();
             }
 
+            Tournament tournament = _tournamentService.GetTournamentByIdAsync(sponsor.Tournament.Id).Result;
+            tournament.PrizePool -= sponsor.Contribution;
+
+            await _tournamentService.UpdateTournamentAsync(tournament);
             await _sponsorService.DeleteSponsorAsync(id);
             return NoContent();
         }
 
-        // GET: api/sponsors/tournament/{tournamentId}
         [HttpGet("tournament/{tournamentId}")]
-        public async Task<IActionResult> GetSponsorsByTournament(int tournamentId)
+        public async Task<ActionResult<IEnumerable<SponsorDTO>>> GetSponsorsByTournament(int tournamentId)
         {
-            var tournament = new Tournament { Id = tournamentId }; // Assuming you have a method to get a Tournament object by Id
+            var tournament = _tournamentService.GetTournamentByIdAsync(tournamentId).Result;
             var sponsors = await _sponsorService.GetAllSponsorsTournamentAsync(tournament);
-
-            return Ok(sponsors);
+            var sponsorsDTO = _mapper.Map<IEnumerable<SponsorDTO>>(sponsors);
+            return Ok(sponsorsDTO);
         }
-        //[HttpGet]
-        //public async Task<ActionResult<IEnumerable<Sponsor>>> GetSponsors()
-        //{
-        //    var sponsors = await _sponsorService.GetAllSponsorsAsync();
-        //    return Ok(sponsors);
-        //}
 
-        //[HttpGet("{id}")]
-        //public async Task<ActionResult<Sponsor>> GetSponsor(int id)
-        //{
-        //    var sponsor = await _sponsorService.GetSponsorByIdAsync(id);
-        //    if (sponsor == null)
-        //    {
-        //        return NotFound();
-        //    }
-        //    return Ok(sponsor);
-        //}
-
-        //[HttpPost]
-        //public async Task<ActionResult<Sponsor>> CreateSponsor(Sponsor sponsor)
-        //{
-        //    var createdSponsor = await _sponsorService.CreateSponsorAsync(sponsor);
-        //    return CreatedAtAction(nameof(GetSponsor), new { id = createdSponsor.Id }, createdSponsor);
-        //}
-
-        //[HttpPut("{id}")]
-        //public async Task<IActionResult> UpdateSponsor(int id, Sponsor sponsor)
-        //{
-        //    if (id != sponsor.Id)
-        //    {
-        //        return BadRequest();
-        //    }
-
-        //    await _sponsorService.UpdateSponsorAsync(sponsor);
-        //    return NoContent();
-        //}
-
-        //[HttpDelete("{id}")]
-        //public async Task<IActionResult> DeleteSponsor(int id)
-        //{
-        //    await _sponsorService.DeleteSponsorAsync(id);
-        //    return NoContent();
-        //}
     }
 }

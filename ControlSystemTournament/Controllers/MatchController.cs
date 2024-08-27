@@ -1,5 +1,7 @@
-﻿using ControlSystemTournament.Core.Interfaces;
+﻿using AutoMapper;
+using ControlSystemTournament.Core.Interfaces;
 using ControlSystemTournament.Core.Models;
+using ControlSystemTournament.DTOs;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,42 +13,48 @@ namespace ControlSystemTournament.Controllers
     public class MatchController : ControllerBase
     {
         private readonly IMatchService _matchService;
+        private readonly IMapper _mapper;
 
-        public MatchController(IMatchService matchService)
+        public MatchController(IMatchService matchService, IMapper mapper)
         {
             _matchService = matchService;
+            _mapper = mapper;
         }
 
         // GET: api/matches/{id}
         [HttpGet("{id}")]
-        public async Task<ActionResult<Match>> GetMatchById(int id)
+        public async Task<ActionResult<MatchDTO>> GetMatchById(int id)
         {
             var match = await _matchService.GetMatchByIdAsync(id);
             if (match == null)
             {
                 return NotFound();
             }
-            return Ok(match);
+            var matchDTO = _mapper.Map<MatchDTO>(match);
+            return Ok(matchDTO);
         }
 
         // POST: api/matches
         [HttpPost]
-        public async Task<IActionResult> CreateMatch([FromBody] Match match)
+        public async Task<ActionResult<MatchDTO>> CreateMatch([FromBody] MatchDTO matchDTO)
         {
-            if (match == null)
+            if (matchDTO == null)
             {
                 return BadRequest();
             }
 
-            var createdMatch = await _matchService.CreateMatchAsync(match);
-            return Created();
+            var match = _mapper.Map<Match>(matchDTO);
+            await _matchService.CreateMatchAsync(match);
+
+            var createdMatchDTO = _mapper.Map<MatchDTO>(match);
+            return Created("Created Match",createdMatchDTO);
         }
 
         // PUT: api/matches/{id}
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateMatch(int id, [FromBody] Match match)
+        public async Task<IActionResult> UpdateMatch(int id, [FromBody] MatchDTO matchDTO)
         {
-            if (match == null || match.Id != id)
+            if (matchDTO == null )
             {
                 return BadRequest();
             }
@@ -57,13 +65,14 @@ namespace ControlSystemTournament.Controllers
                 return NotFound();
             }
 
+            var match = _mapper.Map<Match>(matchDTO);
             await _matchService.UpdateMatchAsync(match);
             return NoContent();
         }
 
         // DELETE: api/matches/{id}
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteMatch(int id)
+        public async Task<ActionResult> DeleteMatch(int id)
         {
             var match = await _matchService.GetMatchByIdAsync(id);
             if (match == null)
@@ -77,12 +86,12 @@ namespace ControlSystemTournament.Controllers
 
         // GET: api/matches/tournament/{tournamentId}
         [HttpGet("tournament/{tournamentId}")]
-        public async Task<IActionResult> GetMatchesByTournament(int tournamentId)
+        public async Task<ActionResult<MatchDTO>> GetMatchesByTournament(int tournamentId)
         {
-            var tournament = new Tournament { Id = tournamentId }; // Assuming you have a method to get a Tournament object by Id
+            var tournament = new Tournament { Id = tournamentId }; 
             var matches = await _matchService.GetAllMatchesTournamentAsync(tournament);
-
-            return Ok(matches);
+            var matchesDTO = _mapper.Map<MatchDTO>(matches);
+            return Ok(matchesDTO);
         }
 
     }
