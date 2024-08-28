@@ -15,5 +15,6 @@ namespace ControlSystemTournament.Core.Interfaces
         Task<Player> CreatePlayerAsync(Player player);
         Task UpdatePlayerAsync(Player player);
         Task DeletePlayerAsync(int id);
+
     }
 }

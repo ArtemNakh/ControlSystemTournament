@@ -1,6 +1,7 @@
 ﻿
 using System.Linq.Expressions;
 using ControlSystemTournament.Core.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 
 namespace ControlSystemTournament.Storage
@@ -40,17 +41,20 @@ namespace ControlSystemTournament.Storage
 
         public async Task<T> GetById<T>(int id) where T : class
         {
-            return await _context.Set<T>().FindAsync(id);
+            var entity= await _context.Set<T>().FindAsync(id);
+            return entity;
         }
 
-        public IQueryable GetAll<T>() where T : class
+        public async Task<IEnumerable<T>> GetAll<T>() where T : class
         {
-            return _context.Set<T>();
+            var entity = await _context.Set<T>().ToListAsync();
+            return entity;
         }
 
         public async Task<IEnumerable<T>> GetQuery<T>(Expression<Func<T, bool>> func) where T : class
         {
-            return _context.Set<T>().Where(func);
+            var entity = await _context.Set<T>().Where(func).ToListAsync();
+            return entity;
         }
     }
 }

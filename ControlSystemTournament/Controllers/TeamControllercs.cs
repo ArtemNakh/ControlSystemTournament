@@ -15,19 +15,16 @@ namespace ControlSystemTournament.Controllers
         private readonly ITeamService _teamService;
         private readonly IMapper _mapper;
         private readonly ITournamentService _tournamentService;
-        public TeamController(ITeamService teamService, IMapper mapper, ITournamentService tournamentService)
+        private readonly IPlayerService _playerService;
+
+        public TeamController(ITeamService teamService, IMapper mapper, ITournamentService tournamentService, IPlayerService playerService)
         {
             _teamService = teamService;
             _mapper = mapper;
             _tournamentService = tournamentService;
+            _playerService = playerService;
         }
 
-        //[HttpGet]
-        //public async Task<ActionResult<IEnumerable<Team>>> GetTeams()
-        //{
-        //    var teams = await _teamService.GetAllTeamsAsync();
-        //    return Ok(teams);
-        //}
 
         [HttpGet("{id}")]
         public async Task<ActionResult<TeamDTO>> GetTeam(int id)
@@ -55,27 +52,20 @@ namespace ControlSystemTournament.Controllers
             return Created("Created team",teamDTO);
         }
 
-        //[HttpPut("{id}")]
-        //public async Task<ActionResult> UpdateTeam(int id, [FromBody] TeamDTO teamDTO)
-        //{
-        //    if (teamDTO == null)
-        //    {
-        //        return BadRequest();
-        //    }
 
-        //    var existingTeam = await _teamService.GetTeamByIdAsync(id);
-        //    if (existingTeam == null)
-        //    {
-        //        return NotFound();
-        //    }
+        [HttpPut("{id}")]
+        public async Task<ActionResult> AddCouchToTeam(int idTeam, [FromBody] int CouchId)
+        {
+            if (CouchId ==null || idTeam==null) 
+                return BadRequest();
 
-        //    var team = _mapper.Map<Team>(teamDTO);
+            Team team = _teamService.GetTeamByIdAsync(idTeam).Result;
+            team.Coach= _playerService.GetPlayerByIdAsync(CouchId).Result;
+            _teamService.UpdateTeamAsync(team);
 
-        //    await _teamService.UpdateTeamAsync(team);
+            return Ok("Couch was Added");
+        }
 
-        //    return Ok();
-        //}
-      
 
         [HttpDelete("{id}")]
         public async Task<ActionResult> DeleteTeam(int id)

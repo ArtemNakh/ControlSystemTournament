@@ -10,8 +10,8 @@ namespace ControlSystemTournament.Core.Models
     {
         public int Id { get; set; }
         public DateTime ScheduledTime { get; set; }
-        public int ScoreTeamA { get; set; }
-        public int ScoreTeamB { get; set; }
+        public int? ScoreTeamA { get; set; }
+        public int? ScoreTeamB { get; set; }
 
 
         public virtual Tournament Tournament { get; set; }
