@@ -16,8 +16,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ControlSystemTournament.Sto
 		{B217AA2A-9C38-442B-BD7E-F8AAC62DA8F3} = {B217AA2A-9C38-442B-BD7E-F8AAC62DA8F3}
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ControlSystemTournament.Test", "ControlSystemTournament.Test\ControlSystemTournament.Test.csproj", "{7295AB47-BC70-40CD-87B4-67AA4D4755EB}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -36,10 +34,6 @@ Global
 		{E60F1A75-C2EF-4627-8B95-7F8B1013203F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E60F1A75-C2EF-4627-8B95-7F8B1013203F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E60F1A75-C2EF-4627-8B95-7F8B1013203F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{7295AB47-BC70-40CD-87B4-67AA4D4755EB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{7295AB47-BC70-40CD-87B4-67AA4D4755EB}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{7295AB47-BC70-40CD-87B4-67AA4D4755EB}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{7295AB47-BC70-40CD-87B4-67AA4D4755EB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
