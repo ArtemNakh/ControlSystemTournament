@@ -1,13 +1,8 @@
 ﻿using AutoMapper;
 using ControlSystemTournament.Core.Interfaces;
 using ControlSystemTournament.Core.Models;
-using ControlSystemTournament.Core.Services;
 using ControlSystemTournament.DTOs;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
-using System.Collections.Generic;
-using System.Data;
 
 namespace ControlSystemTournament.Controllers
 {

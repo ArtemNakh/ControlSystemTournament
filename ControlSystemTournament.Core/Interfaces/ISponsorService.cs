@@ -9,7 +9,6 @@ namespace ControlSystemTournament.Core.Interfaces
 {
     public interface ISponsorService
     {
-       // Task<IEnumerable<Sponsor>> GetAllSponsorsAsync();
         Task<IEnumerable<Sponsor>> GetAllSponsorsTournamentAsync(Tournament tournament);
         Task<Sponsor> GetSponsorByIdAsync(int id);
         Task<Sponsor> CreateSponsorAsync(Sponsor sponsor);

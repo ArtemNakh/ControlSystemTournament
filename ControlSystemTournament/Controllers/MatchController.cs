@@ -2,7 +2,6 @@
 using ControlSystemTournament.Core.Interfaces;
 using ControlSystemTournament.Core.Models;
 using ControlSystemTournament.DTOs;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ControlSystemTournament.Controllers

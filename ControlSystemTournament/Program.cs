@@ -1,10 +1,7 @@
 using ControlSystemTournament.Core.Interfaces;
-using ControlSystemTournament.Core.Models;
 using ControlSystemTournament.Core.Services;
 using ControlSystemTournament.Storage;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
-
 var builder = WebApplication.CreateBuilder(args);
 
 

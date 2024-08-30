@@ -1,12 +1,8 @@
 ﻿using AutoMapper;
 using ControlSystemTournament.Core.Interfaces;
 using ControlSystemTournament.Core.Models;
-using ControlSystemTournament.Core.Services;
 using ControlSystemTournament.DTOs;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
-using System.Collections.Generic;
 
 namespace ControlSystemTournament.Controllers
 {
@@ -71,7 +67,6 @@ namespace ControlSystemTournament.Controllers
         }
 
 
-        //todo DTO
         [HttpPost]
         public async Task<ActionResult<PlayerDTO>> CreatePlayer([FromBody] PlayerDTO playerDTO)
         {
@@ -113,25 +108,7 @@ namespace ControlSystemTournament.Controllers
             }
 
         }
-
-        //[HttpPut]
-        //public async Task<ActionResult<Player>> UpdatePlayer(PlayerDTO playerDTO)
-        //{
-        //    try
-        //    {
-        //        var player = _mapper.Map<Player>(playerDTO);
-        //        await _playerService.UpdatePlayerAsync(player);
-
-        //        return Ok(player);
-        //    }
-        //    catch (Exception)
-        //    {
-        //        return NotFound();
-        //        throw;
-        //    }
-
-        //}
-
+               
         [HttpDelete("{id}")]
         public async Task<ActionResult> DeletePlayer(int id)
         {

@@ -2,12 +2,11 @@
 using ControlSystemTournament.Core.Interfaces;
 using ControlSystemTournament.Core.Models;
 using ControlSystemTournament.DTOs;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ControlSystemTournament.Controllers
 {
-    //зробити повністью контроллер location(доробити put  та інщі перевірки)
+
     [ApiController]
     [Route("api/[controller]")]
     public class LocationsController : ControllerBase
