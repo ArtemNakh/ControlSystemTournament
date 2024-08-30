@@ -20,7 +20,7 @@ namespace ControlSystemTournament.Controllers
             _mapper = mapper;
         }
 
-        //todo
+        
         [HttpGet]
         public async Task<ActionResult<IEnumerable<LocationDTO>>> GetLocations()
         {
@@ -78,6 +78,8 @@ namespace ControlSystemTournament.Controllers
         [HttpDelete("{id}")]
         public async Task<ActionResult> DeleteLocation(int id)
         {
+            if (await _locationService.GetLocationByIdAsync(id) == null)
+                return NotFound();
             await _locationService.DeleteLocationAsync(id);
             return NoContent();
         }

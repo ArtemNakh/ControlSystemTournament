@@ -13,18 +13,28 @@ namespace ControlSystemTournament.Core.Services
         public SponsorService(IRepository context, ITournamentService tournamentService)
         {
             _context = context;
-            _tournamentService = tournamentService;
+            _tournamentService =  tournamentService;
         }
 
 
         public Task<IEnumerable<Sponsor>> GetAllSponsorsTournamentAsync(Tournament tournament)
         {
+            
             if (tournament == null)
             {
-                throw new ArgumentNullException(nameof(tournament), "Tournament cannot be null");
+                throw new ArgumentNullException(nameof(tournament), "Tournament not found");
             }
 
-            return _context.GetQuery<Sponsor>(s => s.Tournament.Id == tournament.Id);
+            try
+            {
+                return _context.GetQuery<Sponsor>(s => s.Tournament.Id == tournament.Id);
+            }
+            catch (Exception)
+            {
+
+                throw new Exception("Error find Sponsor");
+            }
+          
         }
 
         public async Task<Sponsor> GetSponsorByIdAsync(int id)
@@ -37,6 +47,8 @@ namespace ControlSystemTournament.Core.Services
 
         public async Task<Sponsor> CreateSponsorAsync(Sponsor sponsor)
         {
+            if ((_context.GetQuery<Sponsor>(n => n.Name == sponsor.Name && n.Tournament.Id == sponsor.Tournament.Id)).Result.Count() >0)
+                throw new Exception("Choose new Name");
             await _context.Add(sponsor);
             return sponsor;
         }

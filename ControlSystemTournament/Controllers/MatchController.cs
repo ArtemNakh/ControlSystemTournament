@@ -41,7 +41,7 @@ namespace ControlSystemTournament.Controllers
         [HttpPost]
         public async Task<ActionResult<MatchDTO>> CreateMatch([FromBody] MatchDTO matchDTO)
         {
-            if (matchDTO == null|| matchDTO.TeamAId==matchDTO.TeamBId)
+            if (matchDTO == null || matchDTO.TeamAId == matchDTO.TeamBId)
             {
                 return BadRequest();
             }
@@ -50,9 +50,18 @@ namespace ControlSystemTournament.Controllers
 
             try
             {
-                match.Tournament = await _tournamentService.GetTournamentByIdAsync(matchDTO.TournamentId);
-                match.TeamA = await _teamService.GetTeamByIdAsync(matchDTO.TeamAId);
-                match.TeamB = await _teamService.GetTeamByIdAsync(matchDTO.TeamBId);
+                var tournament = await _tournamentService.GetTournamentByIdAsync(matchDTO.TournamentId);
+                var teamA = await _teamService.GetTeamByIdAsync(matchDTO.TeamAId);
+                var teamB = await _teamService.GetTeamByIdAsync(matchDTO.TeamBId);
+
+                if (tournament == null)
+                    return BadRequest("tournament not found");
+                if (teamA == null || teamB == null)
+                    return BadRequest("team not found.Please check correct value");
+
+                match.Tournament = tournament;
+                match.TeamA = teamA;
+                match.TeamB = teamB;
                 match.WinnerTeam = null;
                 if (string.IsNullOrWhiteSpace(match.TeamB.Country) || string.IsNullOrWhiteSpace(match.TeamB.Country) ||
                                         string.IsNullOrEmpty(match.TeamB.Country) || string.IsNullOrEmpty(match.TeamB.Country))
@@ -70,29 +79,36 @@ namespace ControlSystemTournament.Controllers
             {
                 throw new ArgumentException("error: does not succesfull adding match ");
             }
-           
+
 
         }
 
-        [HttpPut("{id}")]
-        public async Task<ActionResult> UpdateMatch(int id,  int ScoreTeamA,  int ScoreTeamB, int WinnerTeamId)
+        [HttpPut("{idMatch}")]
+        public async Task<ActionResult> UpdateMatch(int idMatch, int ScoreTeamA, int ScoreTeamB, int WinnerTeamId)
         {
-            if (ScoreTeamA == null|| ScoreTeamB==null||WinnerTeamId==null)
+            if (ScoreTeamA == null || ScoreTeamB == null || WinnerTeamId == null)
             {
                 return BadRequest();
             }
 
-            var existingMatch = await _matchService.GetMatchByIdAsync(id);
+            var existingMatch = await _matchService.GetMatchByIdAsync(idMatch);
             if (existingMatch == null)
             {
                 return NotFound();
             }
-
-             existingMatch.WinnerTeam = _teamService.GetTeamByIdAsync(WinnerTeamId).Result;
-            existingMatch.ScoreTeamB = ScoreTeamB;
-            existingMatch.ScoreTeamA = ScoreTeamA;
-            await _matchService.UpdateMatchAsync(existingMatch);
-            return Ok() ;
+            var winnerTeam = await _teamService.GetTeamByIdAsync(WinnerTeamId);
+            if (WinnerTeamId == existingMatch.TeamB.Id || WinnerTeamId == existingMatch.TeamA.Id)
+            {
+                existingMatch.WinnerTeam = winnerTeam;
+                existingMatch.ScoreTeamB = ScoreTeamB;
+                existingMatch.ScoreTeamA = ScoreTeamA;
+                await _matchService.UpdateMatchAsync(existingMatch);
+                return Ok();
+            }
+            else
+            {
+                return BadRequest("enter the correct team");
+            }
         }
 
 
@@ -116,6 +132,8 @@ namespace ControlSystemTournament.Controllers
             try
             {
                 var tournament = await _tournamentService.GetTournamentByIdAsync(tournamentId);
+                if (tournament == null)
+                    return NotFound("tournament not found");
                 var matches = await _matchService.GetAllMatchesTournamentAsync(tournament);
 
                 var matchList = matches.ToList();
@@ -129,7 +147,7 @@ namespace ControlSystemTournament.Controllers
 
                 throw new Exception("Incorrect Id tournament");
             }
-           
+
         }
 
     }

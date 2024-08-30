@@ -46,6 +46,11 @@ namespace ControlSystemTournament.Controllers
             team.Tournament = _tournamentService.GetTournamentByIdAsync(teamDTO.TournamentId).Result;
             if (team.Tournament ==null)
                 return NotFound();
+
+
+            if (_teamService.GetTeamsTournamentAsync(team.Tournament).Result.Where(n => n.NameTeam == team.NameTeam).Count()>0 )
+                return BadRequest("Choose other name team");
+
             await _teamService.CreateTeamAsync(team);
 
             _mapper.Map<TeamDTO>(team);
@@ -53,17 +58,22 @@ namespace ControlSystemTournament.Controllers
         }
 
 
-        [HttpPut("{id}")]
-        public async Task<ActionResult> AddCouchToTeam(int idTeam, [FromBody] int CouchId)
+        [HttpPut("{idTeam}")]
+        public async Task<ActionResult> AddCouchToTeam(int idTeam, int CouchId)
         {
             if (CouchId ==null || idTeam==null) 
                 return BadRequest();
 
             Team team = _teamService.GetTeamByIdAsync(idTeam).Result;
-            team.Coach= _playerService.GetPlayerByIdAsync(CouchId).Result;
+            if (team == null)
+                return NotFound("team not found");
+            var coachPlayer= _playerService.GetPlayerByIdAsync(CouchId).Result;
+            if (coachPlayer == null)
+                return NotFound("Player not found");
+            team.Coach= coachPlayer;
             _teamService.UpdateTeamAsync(team);
 
-            return Ok("Couch was Added");
+            return Ok("Couch was successful added");
         }
 
 

@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using ControlSystemTournament.Core.Interfaces;
 using ControlSystemTournament.Core.Models;
+using ControlSystemTournament.Core.Services;
 using ControlSystemTournament.DTOs;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -15,12 +16,14 @@ namespace ControlSystemTournament.Controllers
         private readonly ITournamentService _tournamentService;
         private readonly ILocationService _locationService;
         private readonly IMapper _mapper;
+        private readonly ISponsorService _sponsorService;
 
-        public TournamentController(ITournamentService tournamentService, IMapper mapper, ILocationService locationService)
+        public TournamentController(ITournamentService tournamentService, IMapper mapper, ILocationService locationService, ISponsorService sponsorService)
         {
             _tournamentService = tournamentService;
             _mapper = mapper;
             _locationService = locationService;
+            _sponsorService = sponsorService;
         }
 
         [HttpGet]
@@ -44,7 +47,7 @@ namespace ControlSystemTournament.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult> CreateTournament([FromBody] TournamentDTO tournamentDTO)
+        public async Task<ActionResult<TournamentDTO>> CreateTournament([FromBody] TournamentDTO tournamentDTO)
         {
             if (tournamentDTO == null)
             {
@@ -52,84 +55,24 @@ namespace ControlSystemTournament.Controllers
             }
 
             var tournament = _mapper.Map<Tournament>(tournamentDTO);
-            tournament.Location = _locationService.GetLocationByIdAsync(tournamentDTO.LocationId).Result;
+            Location locations;
+
+            try
+            {
+                locations = await _locationService.GetLocationByIdAsync(tournament.Location.Id);
+            }
+            catch (Exception)
+            {
+                throw new Exception("Location does not found");
+            }
+          
+            tournament.Location = locations;
             var createdTournament = await _tournamentService.CreateTournamentAsync(tournament);
-            return Created();
+            tournamentDTO = _mapper.Map<TournamentDTO>(createdTournament);
+            return Created("Tournament created", tournamentDTO);
         }
 
-        //[HttpPut("{id}")]
-        //public async Task<ActionResult> UpdatePrizePoolTournament(int id, [FromBody] int NewPrizePool)
-        //{
-        //    if ( NewPrizePool==null)
-        //    {
-        //        return BadRequest("Prize pool are empty .");
-        //    }
 
-        //    var existingTournament = await _tournamentService.GetTournamentByIdAsync(id);
-        //    if (existingTournament == null)
-        //    {
-        //        return NotFound("Tournament not found.");
-        //    }
-
-        //    // Оновлення властивостей існуючого турніру
-        //    existingTournament.PrizePool = tournamentDTO.NameTournament;
-           
-
-        //    // Оновлення турніру в базі даних
-        //    try
-        //    {
-        //        await _tournamentService.UpdateTournamentAsync(existingTournament);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return StatusCode(500, $"Internal server error: {ex.Message}");
-        //    }
-
-        //    return Ok("Tournament updated successfully.");
-        //}
-
-        //[HttpPut("{id}")]
-        //public async Task<ActionResult> UpdateTournament(int id, [FromBody] TournamentDTO tournamentDTO)
-        //{
-        //    if (tournamentDTO == null || string.IsNullOrEmpty(tournamentDTO.NameTournament))
-        //    {
-        //        return BadRequest("Tournament data is invalid.");
-        //    }
-
-        //    // Отримання існуючого турніру
-        //    var existingTournament = await _tournamentService.GetTournamentByIdAsync(id);
-        //    if (existingTournament == null)
-        //    {
-        //        return NotFound("Tournament not found.");
-        //    }
-
-        //    // Отримання нової локації
-        //    var location = await _locationService.GetLocationByIdAsync(tournamentDTO.LocationId);
-        //    if (location == null)
-        //    {
-        //        return BadRequest("Location not found.");
-        //    }
-
-        //    // Оновлення властивостей існуючого турніру
-        //    existingTournament.NameTournament = tournamentDTO.NameTournament;
-        //    existingTournament.StartDate = tournamentDTO.StartDate; 
-        //    existingTournament.EndDate = tournamentDTO.EndDate; 
-        //    existingTournament.Description = tournamentDTO.Description; 
-        //    existingTournament.StartDate = tournamentDTO.StartDate; 
-        //    existingTournament.Location = location;
-
-        //    // Оновлення турніру в базі даних
-        //    try
-        //    {
-        //        await _tournamentService.UpdateTournamentAsync(existingTournament);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return StatusCode(500, $"Internal server error: {ex.Message}");
-        //    }
-
-        //    return Ok("Tournament updated successfully.");
-        //}
 
         [HttpDelete("{id}")]
         public async Task<ActionResult> DeleteTournament(int id)
@@ -139,6 +82,11 @@ namespace ControlSystemTournament.Controllers
             {
                 return NotFound();
             }
+
+            var sponsors = await _sponsorService.GetAllSponsorsTournamentAsync(tournament);
+            foreach (var sponsor in sponsors)
+                await _sponsorService.DeleteSponsorAsync(sponsor.Id);
+
 
             await _tournamentService.DeleteTournamentAsync(id);
             return NoContent();

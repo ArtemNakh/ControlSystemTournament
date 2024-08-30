@@ -49,8 +49,6 @@ namespace ControlSystemTournament.Controllers
         }
 
 
-
-
         [HttpGet("{id}")]
         public async Task<ActionResult<PlayerRoleDTO>> GetRoleById(int id)
         {
@@ -62,12 +60,13 @@ namespace ControlSystemTournament.Controllers
             return Ok(playerRoleDTO);
         }
 
-
         [HttpPost]
         public async Task<ActionResult<PlayerRoleDTO>> CreateRole([FromBody] string nameRole)
         {
             try
             {
+                if(nameRole == null|| nameRole=="")
+                    return BadRequest();
                 var createdRole = await _PlayerRoleService.CreatePlayerRoleAsync(nameRole);
                 var playerDTO = _mapper.Map<PlayerRoleDTO>(createdRole);
                 return Created("Created player", playerDTO);
@@ -75,7 +74,7 @@ namespace ControlSystemTournament.Controllers
             catch (Exception)
             {
                 return BadRequest("Role with this name already exists");
-                throw;
+                
             }
 
         }
@@ -83,7 +82,6 @@ namespace ControlSystemTournament.Controllers
         [HttpDelete]
         public async Task<ActionResult> DeleteRole(int id)
         {
-
             await _PlayerRoleService.DeletePlayerRoleAsync(id);
             return NoContent();
         }

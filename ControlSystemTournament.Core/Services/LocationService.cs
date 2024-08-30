@@ -20,7 +20,21 @@ namespace ControlSystemTournament.Core.Services
 
         public async Task<Location> GetLocationByIdAsync(int id)
         {
-            return await _context.GetById<Location>(id);
+            try
+            {
+                var location = await _context.GetById<Location>(id);
+                if (location == null)
+                {
+                    throw new Exception("Location not found");
+                }
+                return location;
+            }
+            catch (Exception)
+            {
+                throw new Exception("Location not found");
+            }
+            
+           
         }
 
        
@@ -44,17 +58,25 @@ namespace ControlSystemTournament.Core.Services
 
         public async Task DeleteLocationAsync(int id)
         {
-            var location = await _context.GetById<Location>(id);
-            if (location != null)
+            
+            try
             {
                 await _context.Delete<Location>(id);
+                await _context.GetById<Location>(id);
             }
+            catch (Exception)
+            {
+
+                throw new Exception("Error Delete");
+            }
+           
+                
         }
 
-        public Task<IEnumerable<Location>> GetAllLocations()
+        public async Task<IEnumerable<Location>> GetAllLocations()
         {
-            var locations = (IEnumerable<Location>)_context.GetAll<Location>();
-            return Task.FromResult(locations);
+            var locations = await _context.GetAll<Location>();
+            return locations;
         }
     }
 }

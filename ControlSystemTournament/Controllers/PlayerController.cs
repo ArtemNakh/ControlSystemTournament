@@ -29,7 +29,6 @@ namespace ControlSystemTournament.Controllers
             _teamService = teamService;
         }
 
-        //todo
         [HttpGet("tournament/{tournamentId}")]
         public async Task<ActionResult<IEnumerable<PlayerDTO>>> GetPlayersByTournament( int tournamentId)
         {
@@ -79,14 +78,21 @@ namespace ControlSystemTournament.Controllers
             if (playerDTO == null)
                 return BadRequest();
 
+           
             try
             {
 
                 Team team = _teamService.GetTeamByIdAsync(playerDTO.TeamId).Result;
+                if (team == null)
+                    return NotFound("Team not found");
+
+                if( _playerService.GetPlayersTournamentAsync(team.Tournament.Id).Result.Where(n => n.FirstName == playerDTO.FirstName && n.LastName == playerDTO.LastName && n.Team.Tournament.Id==team.Tournament.Id ).Count()>0)
+                    return BadRequest("this player already play");
+
                 PlayerRole role = _playerRoleService.GetPLayerRoleByIdAsync(playerDTO.RoleId).Result;
 
-                if (team == null || role == null)
-                    return BadRequest();
+                if ( role == null)
+                    return BadRequest("Role mot found");
 
                 var player = _mapper.Map<Player>(playerDTO);
                 player.Team = team;
@@ -104,7 +110,6 @@ namespace ControlSystemTournament.Controllers
             catch (Exception)
             {
                 return BadRequest();
-                throw;
             }
 
         }
@@ -137,7 +142,7 @@ namespace ControlSystemTournament.Controllers
                     return BadRequest();
 
                 Team team = await _teamService.GetTeamByIdAsync(player.Team.Id);
-                if (team.Coach.Id == player.Id)
+                if (team.Coach!=null && team.Coach.Id == player.Id)
                 {
                     team.Coach = null;
                     _teamService.UpdateTeamAsync(team);
